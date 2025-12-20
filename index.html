@@ -2274,14 +2274,7 @@
 
                 <div class="hint-audio hidden" id="hint-audio">
                     <span class="hint-label">INTEL 2:</span>
-                    <div class="audio-player">
-                        <button class="play-btn" id="play-btn">▶</button>
-                        <div class="audio-progress">
-                            <div class="audio-bar" id="audio-bar"></div>
-                        </div>
-                        <span class="audio-time" id="audio-time">0:00</span>
-                    </div>
-                    <audio id="morse-audio" src="morse.wav" preload="auto"></audio>
+                    <span class="hint-content">"Use Google to find morse converters."</span>
 
                     <div class="hint-prompt hint-prompt-3" id="hint-prompt-3">
                         <span class="hint-icon">◇</span>
@@ -3347,9 +3340,18 @@
             let currentIndex = 0;
 
             function randomTime() {
-                const h = Math.floor(Math.random() * 48); // Up to 48h for realism
-                const m = Math.floor(Math.random() * 60);
-                const s = Math.floor(Math.random() * 60);
+                // Varied ranges: alternates low/high for dramatic effect
+                const ranges = [
+                    { h: [0, 5], m: [0, 15], s: [0, 20] },       // Very low
+                    { h: [55, 99], m: [45, 59], s: [45, 59] },   // Very high
+                    { h: [1, 8], m: [5, 25], s: [10, 30] },      // Low
+                    { h: [42, 78], m: [35, 55], s: [40, 58] },   // High
+                    { h: [28, 38], m: [25, 40], s: [20, 45] },   // Mid (closer to real)
+                ];
+                const range = ranges[currentIndex];
+                const h = range.h[0] + Math.floor(Math.random() * (range.h[1] - range.h[0]));
+                const m = range.m[0] + Math.floor(Math.random() * (range.m[1] - range.m[0]));
+                const s = range.s[0] + Math.floor(Math.random() * (range.s[1] - range.s[0]));
                 return String(h).padStart(2, '0') + ':' +
                        String(m).padStart(2, '0') + ':' +
                        String(s).padStart(2, '0');
