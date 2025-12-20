@@ -97,6 +97,36 @@
             max-width: 600px;
         }
 
+        .audio-hint {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .audio-hint:hover {
+            opacity: 1;
+        }
+
+        .audio-hint-icon {
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .audio-hint-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--size-2xs);
+            color: var(--dim);
+            letter-spacing: var(--ls-tight);
+        }
+
         .sigil {
             font-size: var(--size-display);
             color: var(--accent);
@@ -1333,9 +1363,8 @@
         }
 
         .deploy-rev-line.warning {
-            color: #8b0000;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
+            color: var(--white);
+            font-size: 1.4rem;
             letter-spacing: 2px;
         }
 
@@ -1868,7 +1897,7 @@
             }
 
             .deploy-rev-line.warning {
-                font-size: 0.7rem;
+                font-size: 1rem;
             }
 
             .deploy-sigil-icon {
@@ -2163,6 +2192,12 @@
     </style>
 </head>
 <body>
+    <!-- AUDIO HINT -->
+    <div class="audio-hint" id="audio-hint" onclick="initAudio()">
+        <span class="audio-hint-icon">&#9835;</span>
+        <span class="audio-hint-text">SOUND ON</span>
+    </div>
+
     <!-- SUBTLE COUNTER -->
     <div class="counter-subtle">
         <span id="seeker-count">1,247</span> seekers before you
@@ -2177,8 +2212,7 @@
             <div class="sigil">&#9670;</div>
 
             <div class="epigraph" id="epigraph">
-                <span class="scramble-text" data-text="The path lies in the shadows between knowing and seeking."></span><br>
-                <span class="scramble-text" data-text="Those who understand will find us. Those who do not, were never meant to."></span>
+                <span class="scramble-text" data-text="If you possess the capacity to perceive what others cannot, if your mind transcends the ordinary boundaries of thought, then perhaps you are ready to begin.">If you possess the capacity to perceive what others cannot, if your mind transcends the ordinary boundaries of thought, then perhaps you are ready to begin.</span>
             </div>
             <div class="epigraph-source" id="epigraph-source">- First Transmission, Day 0</div>
 
@@ -2460,7 +2494,7 @@
     <!-- PHASE 6: DEPLOYMENT BRIEFING (Progressive Stages) -->
     <div id="phase-deployment" class="phase hidden">
         <!-- Mini timer (appears after stage 1) -->
-        <div class="deploy-mini-timer hidden" id="deploy-mini-timer">23:59:47</div>
+        <div class="deploy-mini-timer hidden" id="deploy-mini-timer">24:00:00</div>
 
         <!-- Glitch overlay for transitions -->
         <div class="deploy-glitch" id="deploy-glitch"></div>
@@ -2481,7 +2515,7 @@
         <div class="deployment-container">
             <!-- Stage 1: Timer only - builds dread -->
             <div class="deploy-stage active" id="deploy-stage-1">
-                <div class="deploy-timer-only" id="deployment-timer">23:59:47</div>
+                <div class="deploy-timer-only" id="deployment-timer">24:00:00</div>
                 <div class="deploy-timer-label">UNTIL SELECTION CLOSES</div>
             </div>
 
@@ -2697,8 +2731,32 @@
         // === PHASE 1: SIGIL ===
         phases.sigil.addEventListener('click', () => {
             if (state.phase !== 'sigil') return;
-            showPhase('test');
-            startHintAttention();
+            state.phase = 'transitioning';
+
+            // Blur out current page
+            phases.sigil.style.transition = 'filter 0.4s ease-out, opacity 0.4s ease-out';
+            phases.sigil.style.filter = 'blur(20px)';
+            phases.sigil.style.opacity = '0.3';
+
+            playReverseReverb();
+
+            // Wait then transition (total ~1.4s)
+            setTimeout(() => {
+                // Prepare test phase with blur
+                phases.test.style.filter = 'blur(20px)';
+                phases.test.style.opacity = '0';
+                phases.sigil.classList.add('hidden');
+                phases.test.classList.remove('hidden');
+                state.phase = 'test';
+
+                // Unblur the test phase
+                setTimeout(() => {
+                    phases.test.style.transition = 'filter 0.7s ease-out, opacity 0.7s ease-out';
+                    phases.test.style.filter = 'blur(0)';
+                    phases.test.style.opacity = '1';
+                    startHintAttention();
+                }, 50);
+            }, 600);
         });
 
         // === PHASE 2: TEST (Self-Selection + Commitment) ===
@@ -2932,7 +2990,6 @@
                 contractModal.classList.add('hidden');
                 showPhase('briefing');
                 startBriefingScramble();
-                playReverseReverb(); // 15. REVERSE REVERB sound effect
             });
         }
 
@@ -2955,8 +3012,30 @@
 
         document.getElementById('briefing-continue').addEventListener('click', () => {
             if (briefingScrambleInterval) clearInterval(briefingScrambleInterval);
-            showPhase('calibration');
-            initCalibration();
+
+            // Blur out current page
+            phases.briefing.style.transition = 'filter 0.4s ease-out, opacity 0.4s ease-out';
+            phases.briefing.style.filter = 'blur(20px)';
+            phases.briefing.style.opacity = '0.3';
+
+            playReverseReverb();
+
+            // Wait then transition (total ~1.4s)
+            setTimeout(() => {
+                // Prepare calibration phase with blur
+                phases.calibration.style.filter = 'blur(20px)';
+                phases.calibration.style.opacity = '0';
+                phases.briefing.classList.add('hidden');
+                phases.calibration.classList.remove('hidden');
+                initCalibration();
+
+                // Unblur the calibration phase
+                setTimeout(() => {
+                    phases.calibration.style.transition = 'filter 0.7s ease-out, opacity 0.7s ease-out';
+                    phases.calibration.style.filter = 'blur(0)';
+                    phases.calibration.style.opacity = '1';
+                }, 50);
+            }, 600);
         });
 
         /* === SAVED FOR LATER: PROGRESS BAR WITH EGO-BOOSTING MESSAGES ===
@@ -3167,8 +3246,19 @@
         // === PHASE 6: DEPLOYMENT BRIEFING (Staged) ===
         let deployStage = 1;
         let deployTimerInterval = null;
-        let deployHours = 23, deployMins = 59, deploySecs = 47;
         let tickMuted = false;
+
+        // Calculate end of tomorrow (tonight midnight + 24h)
+        function getTargetMidnight() {
+            const now = new Date();
+            const target = new Date(now);
+            // Go to day after tomorrow at 00:00 (tonight midnight + 24h)
+            target.setDate(target.getDate() + 2);
+            target.setHours(0, 0, 0, 0);
+            return target;
+        }
+
+        const targetDate = getTargetMidnight();
 
         // Stinger sound for final confirmation
         function playStinger() {
@@ -3221,14 +3311,18 @@
         }
 
         function updateDeployTimer() {
-            deploySecs--;
-            if (deploySecs < 0) { deploySecs = 59; deployMins--; }
-            if (deployMins < 0) { deployMins = 59; deployHours--; }
-            if (deployHours < 0) { deployHours = 0; deployMins = 0; deploySecs = 0; }
+            const now = new Date();
+            let diff = targetDate - now;
 
-            const timeStr = String(deployHours).padStart(2, '0') + ':' +
-                           String(deployMins).padStart(2, '0') + ':' +
-                           String(deploySecs).padStart(2, '0');
+            if (diff < 0) diff = 0;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const timeStr = String(hours).padStart(2, '0') + ':' +
+                           String(mins).padStart(2, '0') + ':' +
+                           String(secs).padStart(2, '0');
 
             const mainTimer = document.getElementById('deployment-timer');
             const miniTimer = document.getElementById('deploy-mini-timer');
@@ -3242,6 +3336,44 @@
             if (!deployTimerInterval) {
                 deployTimerInterval = setInterval(updateDeployTimer, 1000);
             }
+        }
+
+        function shuffleTimerEffect(callback) {
+            const mainTimer = document.getElementById('deployment-timer');
+            const miniTimer = document.getElementById('deploy-mini-timer');
+
+            // Delays: 500ms, 400ms, 300ms, 200ms, 100ms then reveal
+            const delays = [500, 400, 300, 200, 100];
+            let currentIndex = 0;
+
+            function randomTime() {
+                const h = Math.floor(Math.random() * 48); // Up to 48h for realism
+                const m = Math.floor(Math.random() * 60);
+                const s = Math.floor(Math.random() * 60);
+                return String(h).padStart(2, '0') + ':' +
+                       String(m).padStart(2, '0') + ':' +
+                       String(s).padStart(2, '0');
+            }
+
+            function showNextRandom() {
+                if (currentIndex < delays.length) {
+                    const randomStr = randomTime();
+                    if (mainTimer) mainTimer.textContent = randomStr;
+                    if (miniTimer) miniTimer.textContent = randomStr;
+
+                    setTimeout(() => {
+                        currentIndex++;
+                        showNextRandom();
+                    }, delays[currentIndex]);
+                } else {
+                    // Animation done - show real time
+                    updateDeployTimer();
+                    if (callback) callback();
+                }
+            }
+
+            // Start the shuffle sequence
+            showNextRandom();
         }
 
         function goToDeployStage(n) {
@@ -3299,9 +3431,11 @@
 
             switch(n) {
                 case 1:
-                    // Timer stage
-                    startDeployTimer();
+                    // Timer stage - shuffle then show real time
                     playReverseReverb();
+                    shuffleTimerEffect(() => {
+                        startDeployTimer();
+                    });
                     setTimeout(() => {
                         continuePrompt.classList.remove('hidden');
                     }, 5000);
@@ -3477,8 +3611,27 @@
                 }
             });
 
+            const maxDuration = 40; // Cut audio at 40 seconds
+
             day0Audio.addEventListener('timeupdate', () => {
-                const pct = (day0Audio.currentTime / day0Audio.duration) * 100;
+                // Stop at 40 seconds
+                if (day0Audio.currentTime >= maxDuration) {
+                    day0Audio.pause();
+                    day0Audio.currentTime = maxDuration;
+                    day0PlayBtn.textContent = '▶';
+                    day0Bar.style.width = '100%';
+                    day0Time.textContent = '0:40';
+                    tickMuted = false;
+                    if (!day0Unlocked) {
+                        day0Unlocked = true;
+                        const enterBtn = document.getElementById('deploy-enter-btn');
+                        enterBtn.classList.remove('locked');
+                        playReverseReverb();
+                    }
+                    return;
+                }
+
+                const pct = (day0Audio.currentTime / maxDuration) * 100;
                 day0Bar.style.width = pct + '%';
                 const mins = Math.floor(day0Audio.currentTime / 60);
                 const secs = Math.floor(day0Audio.currentTime % 60);
@@ -3509,7 +3662,7 @@
             day0Progress.addEventListener('click', (e) => {
                 const rect = day0Progress.getBoundingClientRect();
                 const pct = (e.clientX - rect.left) / rect.width;
-                day0Audio.currentTime = pct * day0Audio.duration;
+                day0Audio.currentTime = Math.min(pct * maxDuration, maxDuration);
             });
         }
 
