@@ -2895,46 +2895,6 @@
             submitBtn.disabled = true;
         });
 
-        // === AUDIO PLAYER ===
-        const audio = document.getElementById('morse-audio');
-        const playBtn = document.getElementById('play-btn');
-        const audioBar = document.getElementById('audio-bar');
-        const audioTime = document.getElementById('audio-time');
-        const audioProgress = document.querySelector('.audio-progress');
-
-        let isPlaying = false;
-
-        playBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                audio.pause();
-                playBtn.textContent = '▶';
-            } else {
-                audio.play();
-                playBtn.textContent = '▮▮';
-            }
-            isPlaying = !isPlaying;
-        });
-
-        audio.addEventListener('timeupdate', () => {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            audioBar.style.width = progress + '%';
-            const mins = Math.floor(audio.currentTime / 60);
-            const secs = Math.floor(audio.currentTime % 60);
-            audioTime.textContent = mins + ':' + String(secs).padStart(2, '0');
-        });
-
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            playBtn.textContent = '▶';
-            audioBar.style.width = '0%';
-        });
-
-        audioProgress.addEventListener('click', (e) => {
-            const rect = audioProgress.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = pos * audio.duration;
-        });
-
         // === PHASE 3: REVEAL ===
         document.getElementById('continue-btn').addEventListener('click', () => {
             showPhase('channel');
